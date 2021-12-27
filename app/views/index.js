@@ -1,33 +1,81 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { getData } from '~redux/modules/google';
+import { StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native';
+import { getData, setQuery } from '~redux/modules/google';
 import { connect } from 'react-redux';
+import Autocomplete from 'react-native-autocomplete-input';
+import _ from 'lodash';
 
 class ViewPage extends React.Component {
 
-	getDataNow = () => {
-        console.log('press')
-		this.props.getData()
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			data: [],
+			isReady: false,
+			isLoading: false,
+			query: ''
+		};
+		this.onChangeTextDelayed = _.debounce(this.onChangeText, 500);
+	}
+
+	onChangeText = (text) => {
+		this.props.getData(text)
+	}
+
+	autoComp = () => {
+		return (
+			<Autocomplete
+				data={this.props.data}
+				value={this.props.query}
+				onChangeText={(text) => {
+					this.onChangeTextDelayed(text)
+					this.props.setQuery(text)
+				}}
+				flatListProps={{
+					keyExtractor: (_, idx) => idx,
+					renderItem: ({ item, index }) => {
+						if (index < 10) {
+							return <Text>{item.placeName} {item.countryCode} {item.postalCode}</Text>
+						}
+					},
+				}}
+			/>
+		)
 	}
 
 	render() {
 		return (
 			<View style={styles.container}>
-				<TouchableOpacity onPress={() => this.getDataNow()}>
-					<Text>Open up App.js to start working on your app!</Text>
-				</TouchableOpacity>
+				{Platform.OS === 'ios' ?
+                this.autoComp()
+				:
+				<View style={styles.autocompleteContainer}>
+					{this.autoComp()}
+				</View>
+				}
 				<StatusBar style="auto" />
 			</View>
 		);
 	}
 }
 
-const mapDispatchToProps = {
-	getData
+const mapStateToProps = ({ google }) => {
+	let { data, query } = google;
+
+	return {
+		data,
+		query
+	};
 };
 
-export default connect(null, mapDispatchToProps)(ViewPage);
+const mapDispatchToProps = {
+	getData,
+	setQuery
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ViewPage);
 
 const styles = StyleSheet.create({
 	container: {
@@ -36,4 +84,12 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
+	autocompleteContainer: {
+		flex: 1,
+		left: 0,
+		position: 'absolute',
+		right: 0,
+		top: 100,
+		zIndex: 1
+	  }
 });

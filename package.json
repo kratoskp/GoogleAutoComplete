@@ -10,9 +10,6 @@
 		"eject": "expo eject"
 	},
 	"dependencies": {
-		"@emotion/react": "^11.7.1",
-		"@emotion/styled": "^11.6.0",
-		"@mui/material": "^5.2.5",
 		"@react-native-async-storage/async-storage": "^1.15.14",
 		"axios": "^0.24.0",
 		"expo": "~44.0.0",
@@ -21,6 +18,7 @@
 		"react": "17.0.1",
 		"react-dom": "17.0.1",
 		"react-native": "0.64.3",
+		"react-native-autocomplete-input": "^5.0.2",
 		"react-native-web": "0.17.1",
 		"react-redux": "^7.2.6",
 		"redux": "^4.1.2",
