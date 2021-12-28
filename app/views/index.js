@@ -1,17 +1,19 @@
 import React from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Platform, Modal, Dimensions } from 'react-native';
 import { getData, setQuery, setData, setHide } from '~redux/modules/google';
 import { resetQuery, fillQueryData } from '~redux/modules/savedData';
 import { connect } from 'react-redux';
 import Autocomplete from 'react-native-autocomplete-input';
+import MapView, { Marker } from 'react-native-maps';
 import _ from 'lodash';
 
 class ViewPage extends React.Component {
 
 	constructor(props) {
 		super(props);
-
+		this.state = {
+			map: false
+		};
 		this.onChangeTextDelayed = _.debounce(this.onChangeText, 500);
 	}
 
@@ -35,7 +37,8 @@ class ViewPage extends React.Component {
 						if (index < 10) {
 							return (
 								<TouchableOpacity onPress={() => {
-									this.props.fillQueryData(this.props.query);
+									this.props.fillQueryData(item.placeName);
+									this.props.setQuery(item.placeName)
 									this.props.setData(item);
 									this.props.setHide(true);
 									}
@@ -63,7 +66,7 @@ class ViewPage extends React.Component {
 				</View>
 				}
 				{this.props.searchQuery.length > 0 &&
-					<View style={{ flexDirection: 'row', marginTop: 50, flexWrap: 'wrap' }}>
+					<View style={{ flexDirection: 'row', marginTop: 60, flexWrap: 'wrap' }}>
 						 {this.props.searchQuery.map((data, index) => {
 							return (
 								<TouchableOpacity key={index} style={{ paddingTop: 16, paddingHorizontal: 16 }} onPress={() => {
@@ -87,8 +90,35 @@ class ViewPage extends React.Component {
 						<Text>{selectedData.postalCode}</Text>
 						<Text>{selectedData.lat}</Text>
 						<Text>{selectedData.lng}</Text>
+						<TouchableOpacity onPress={() => this.setState({ map: true })}  style={{ paddingTop: 16, paddingHorizontal: 16 }}>
+							<Text>Show in map</Text>
+						</TouchableOpacity>
 					</View>
 				}
+				 <Modal
+					animationType="slide"
+					visible={this.state.map}
+					onRequestClose={() => {
+						this.setState({ map: false })
+					}}
+					style={{ backgroundColor: 'white' }}
+					
+					>
+					<MapView 
+					style={{ height: Dimensions.get('screen').height / 2, width: Dimensions.get('screen').width }}
+					initialRegion={{
+						latitude: selectedData.lat,
+						longitude: selectedData.lng,
+						latitudeDelta: 0.1,
+						longitudeDelta: 0.05,
+					  }}
+					>
+					<Marker coordinate={{ latitude: selectedData.lat, longitude: selectedData.lng }} />
+					</MapView>
+					<TouchableOpacity style={{backgroundColor: "red", padding: 10}} onPress={() => this.setState({ map: false })}>
+						<Text>Close Map</Text>
+					</TouchableOpacity>
+				</Modal>
 			</View>
 		);
 	}
@@ -122,7 +152,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: '#fff',
-		padding: 16
+		marginTop: 50
 	},
 	autocompleteContainer: {
 		flex: 1,
