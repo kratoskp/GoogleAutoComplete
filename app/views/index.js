@@ -5,6 +5,7 @@ import { resetQuery, fillQueryData } from '~redux/modules/savedData';
 import { connect } from 'react-redux';
 import Autocomplete from 'react-native-autocomplete-input';
 import MapView, { Marker } from 'react-native-maps';
+import { Button } from 'react-native-paper';
 import _ from 'lodash';
 
 class ViewPage extends React.Component {
@@ -66,21 +67,21 @@ class ViewPage extends React.Component {
 				</View>
 				}
 				{this.props.searchQuery.length > 0 &&
-					<View style={{ flexDirection: 'row', marginTop: 60, flexWrap: 'wrap' }}>
+					<View style={{ flexDirection: 'row', marginTop: 60, flexWrap: 'wrap', zIndex: 0 }}>
 						 {this.props.searchQuery.map((data, index) => {
 							return (
-								<TouchableOpacity key={index} style={{ paddingTop: 16, paddingHorizontal: 16 }} onPress={() => {
+								<Button mode="contained" key={index} style={{ marginTop: 16, marginLeft: 16 }} onPress={() => {
 									this.props.getData(data);
 									this.props.setQuery(data);
 									}
 								}>
-									<Text>{data}</Text>
-								</TouchableOpacity>
+									{data}
+								</Button>
 							);
 						})}
-						<TouchableOpacity onPress={() => {this.props.resetQuery(); this.props.setQuery(''); }}  style={{ paddingTop: 16, paddingHorizontal: 16 }}>
-							<Text>Clear query</Text>
-						</TouchableOpacity>
+						<Button mode="contained" onPress={() => {this.props.resetQuery(); this.props.setQuery(''); }} style={{ marginTop: 16, marginLeft: 16 }}>
+							Clear query
+						</Button>
 					</View>
 				}
 				{!_.isEmpty(selectedData) &&
@@ -90,35 +91,36 @@ class ViewPage extends React.Component {
 						<Text>{selectedData.postalCode}</Text>
 						<Text>{selectedData.lat}</Text>
 						<Text>{selectedData.lng}</Text>
-						<TouchableOpacity onPress={() => this.setState({ map: true })}  style={{ paddingTop: 16, paddingHorizontal: 16 }}>
-							<Text>Show in map</Text>
-						</TouchableOpacity>
+						<Button icon="map" mode="contained" onPress={() => this.setState({ map: true })} style={{ marginTop: 16 }}>
+							Show in map
+						</Button>
 					</View>
 				}
-				 <Modal
-					animationType="slide"
-					visible={this.state.map}
-					onRequestClose={() => {
-						this.setState({ map: false })
-					}}
-					style={{ backgroundColor: 'white' }}
-					
+				{this.state.map === true &&
+					<Modal
+						animationType="slide"
+						visible={this.state.map}
+						onRequestClose={() => {
+							this.setState({ map: false })
+						}}
+						style={{ backgroundColor: 'white' }}
 					>
-					<MapView 
-					style={{ height: Dimensions.get('screen').height / 2, width: Dimensions.get('screen').width }}
-					initialRegion={{
-						latitude: selectedData.lat,
-						longitude: selectedData.lng,
-						latitudeDelta: 0.1,
-						longitudeDelta: 0.05,
-					  }}
-					>
-					<Marker coordinate={{ latitude: selectedData.lat, longitude: selectedData.lng }} />
-					</MapView>
-					<TouchableOpacity style={{backgroundColor: "red", padding: 10}} onPress={() => this.setState({ map: false })}>
-						<Text>Close Map</Text>
-					</TouchableOpacity>
-				</Modal>
+						<MapView
+						style={{ height: Dimensions.get('screen').height / 2, width: Dimensions.get('screen').width }}
+						initialRegion={{
+							latitude: selectedData.lat,
+							longitude: selectedData.lng,
+							latitudeDelta: 0.1,
+							longitudeDelta: 0.05,
+						}}
+						>
+						<Marker coordinate={{ latitude: selectedData.lat, longitude: selectedData.lng }} />
+						</MapView>
+						<Button mode="contained" onPress={() => this.setState({ map: false })} style={{ marginTop: 16 }}>
+							Close Map
+						</Button>
+					</Modal>
+				}
 			</View>
 		);
 	}

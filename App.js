@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 import configureStore from '~redux/configureStore';
 import { Provider } from 'react-redux';
 import ViewPage from './app/views';
+import { Provider as PaperProvider } from 'react-native-paper';
 
 export default class App extends React.Component {
 	constructor(props) {
@@ -35,7 +36,9 @@ export default class App extends React.Component {
 
 		return (
 			<Provider store={this.state.store}>
-				<ViewPage />
+				<PaperProvider>
+					<ViewPage />
+				</PaperProvider>
 			</Provider>
 		);
 	}
