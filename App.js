@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import configureStore from '~redux/configureStore';
 import { Provider } from 'react-redux';
 import ViewPage from './app/views';

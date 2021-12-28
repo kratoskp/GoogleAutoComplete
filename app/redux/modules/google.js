@@ -2,10 +2,14 @@ import axios from 'axios';
 
 const RESULT = 'google/RESULT';
 const SETQUERY = 'google/SETQUERY';
+const SETDATA = 'google/SETDATA';
+const SETHIDE = 'google/SETHIDE';
 
 const initialState = {
 	data: [],
-	query: ''
+	query: '',
+	selectedData: {},
+	hideResults: false
 };
 
 // Reducer
@@ -26,6 +30,20 @@ export default function reducer(state = initialState, action = {}) {
 			query
 		};
 
+	case SETDATA:
+		let { selectedData } = action;
+		return {
+			...state,
+			selectedData
+		};
+
+	case SETHIDE:
+		let { hideResults } = action;
+		return {
+			...state,
+			hideResults
+		};
+
 	default:
 		return state;
 	}
@@ -39,21 +57,33 @@ export const fillData = (data) => {
 	};
 };
 
-export const setQuery = (query) => {
+export const setQuery = (text) => {
 	return {
 		type: SETQUERY,
-		query: query
+		query: text
+	};
+};
+
+export const setData = (data) => {
+	return {
+		type: SETDATA,
+		selectedData: data
+	};
+};
+
+export const setHide = (bool) => {
+	return {
+		type: SETHIDE,
+		hideResults: bool
 	};
 };
 
 export const getData = (text) => {
 	return async (dispatch, getState) => {
 		try {
-			const { google } = getState();
-			const { data } = google;
-
 			let response = await axios.get(`http://api.geonames.org/postalCodeSearchJSON?placename=${text}&username=kratoskp`)
 			dispatch(fillData(response.data.postalCodes));
+			dispatch(setHide(false));
 		} catch (e) {
 			console.error(e);
 		}

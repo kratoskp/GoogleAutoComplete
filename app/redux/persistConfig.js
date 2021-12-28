@@ -8,6 +8,6 @@ export default {
 	timeout: 0,
 	stateReconciler: autoMergeLevel2,
 	whitelist: [
-		'google'
+		'savedData'
 	]
 };
