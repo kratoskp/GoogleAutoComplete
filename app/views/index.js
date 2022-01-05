@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Platform, Modal, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Platform, Keyboard, Dimensions } from 'react-native';
 import { getData, setQuery, setData, setHide } from '~redux/modules/google';
 import { resetQuery, fillQueryData } from '~redux/modules/savedData';
 import { connect } from 'react-redux';
 import Autocomplete from 'react-native-autocomplete-input';
 import MapView, { Marker } from 'react-native-maps';
 import { Button } from 'react-native-paper';
+import Hide from 'react-native-hide-with-keyboard';
 import _ from 'lodash';
 
 class ViewPage extends React.Component {
@@ -43,7 +44,20 @@ class ViewPage extends React.Component {
 									this.props.setQuery(item.placeName)
 									this.props.setData(item);
 									this.props.setHide(true);
+									Keyboard.dismiss();
+									if (this.map) {
+										this.map.animateCamera({
+											center: {
+											 latitude: item.lat,
+											 longitude: item.lng,
+										 },
+											heading: 0,
+											pitch: 0,
+											zoom: 15
+										  })
+										}
 									}
+									
 								}>
 									<Text>{item.placeName} {item.countryCode} {item.postalCode}</Text>
 								</TouchableOpacity>
@@ -86,26 +100,10 @@ class ViewPage extends React.Component {
 					</View>
 				}
 				{!_.isEmpty(selectedData) &&
-					<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-						<Text>{selectedData.placeName}</Text>
-						<Text>{selectedData.countryCode}</Text>
-						<Text>{selectedData.postalCode}</Text>
-						<Text>{selectedData.lat}</Text>
-						<Text>{selectedData.lng}</Text>
-						<Button icon="map" mode="contained" onPress={() => this.setState({ map: true })} style={{ marginTop: 16 }}>
-							Show in map
-						</Button>
-					</View>
-				}
-				{this.state.map === true &&
-					<Modal
-						animationType="slide"
-						visible={this.state.map}
-						onRequestClose={() => {
-							this.setState({ map: false })
-						}}
-						style={{ backgroundColor: 'white' }}
-					>
+					<Hide style={{ flex: 1, justifyContent: 'center' }}>
+						<Text>Current shown location : {selectedData.placeName} {selectedData.countryCode} {selectedData.postalCode}</Text>
+						<Text>Latitude : {selectedData.lat}</Text>
+						<Text>Longitude: {selectedData.lng}</Text>
 						<MapView
 						style={{ height: Dimensions.get('screen').height / 2, width: Dimensions.get('screen').width }}
 						initialRegion={{
@@ -126,12 +124,9 @@ class ViewPage extends React.Component {
 							 })
 						  }
 						>
-						<Marker coordinate={{ latitude: selectedData.lat, longitude: selectedData.lng }} />
+							<Marker coordinate={{ latitude: selectedData.lat, longitude: selectedData.lng }} />
 						</MapView>
-						<Button mode="contained" onPress={() => this.setState({ map: false })} style={{ marginTop: 16 }}>
-							Close Map
-						</Button>
-					</Modal>
+					</Hide>
 				}
 			</View>
 		);
