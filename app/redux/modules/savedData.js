@@ -41,7 +41,11 @@ export const fillQueryData = (query) => {
 			const { savedData } = getState();
 			const { searchQuery } = savedData;
 
-			dispatch(saveQuery([...searchQuery, query]));
+			let found = searchQuery.find(element => element === query);
+			
+			if (found === undefined) {
+				dispatch(saveQuery([...searchQuery, query]));
+			}
 		} catch (e) {
 			console.error(e);
 		}

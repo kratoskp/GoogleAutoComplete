@@ -32,6 +32,7 @@ class ViewPage extends React.Component {
 					this.onChangeTextDelayed(text)
 					this.props.setQuery(text)
 				}}
+				placeholder='Enter the name of the place that you want to search'
 				flatListProps={{
 					keyExtractor: (_, idx) => idx,
 					renderItem: ({ item, index }) => {
@@ -79,8 +80,8 @@ class ViewPage extends React.Component {
 								</Button>
 							);
 						})}
-						<Button mode="contained" onPress={() => {this.props.resetQuery(); this.props.setQuery(''); }} style={{ marginTop: 16, marginLeft: 16 }}>
-							Clear query
+						<Button mode="contained" icon="close" onPress={() => {this.props.resetQuery(); this.props.setQuery(''); }} style={{ marginTop: 16, marginLeft: 16 }}>
+							Clear search history
 						</Button>
 					</View>
 				}
