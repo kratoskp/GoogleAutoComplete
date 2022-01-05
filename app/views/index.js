@@ -71,7 +71,7 @@ class ViewPage extends React.Component {
 					<View style={{ flexDirection: 'row', marginTop: 60, flexWrap: 'wrap', zIndex: 0 }}>
 						 {this.props.searchQuery.map((data, index) => {
 							return (
-								<Button mode="contained" key={index} style={{ marginTop: 16, marginLeft: 16 }} onPress={() => {
+								<Button mode="contained" key={index} compact style={{ marginTop: 16, marginLeft: 16 }} onPress={() => {
 									this.props.getData(data);
 									this.props.setQuery(data);
 									}
@@ -80,7 +80,7 @@ class ViewPage extends React.Component {
 								</Button>
 							);
 						})}
-						<Button mode="contained" icon="close" onPress={() => {this.props.resetQuery(); this.props.setQuery(''); }} style={{ marginTop: 16, marginLeft: 16 }}>
+						<Button mode="contained" icon="close" compact onPress={() => {this.props.resetQuery(); this.props.setQuery(''); }} style={{ marginTop: 16, marginLeft: 16 }}>
 							Clear search history
 						</Button>
 					</View>
@@ -111,9 +111,20 @@ class ViewPage extends React.Component {
 						initialRegion={{
 							latitude: selectedData.lat,
 							longitude: selectedData.lng,
-							latitudeDelta: 0.1,
-							longitudeDelta: 0.05,
+							latitudeDelta: 1,
+							longitudeDelta: 1,
 						}}
+						ref={ref => { this.map = ref }}
+						onMapLoaded={() => this.map.animateCamera({
+							   center: {
+								latitude: selectedData.lat,
+								longitude: selectedData.lng,
+							},
+							   heading: 0,
+							   pitch: 0,
+							   zoom: 15
+							 })
+						  }
 						>
 						<Marker coordinate={{ latitude: selectedData.lat, longitude: selectedData.lng }} />
 						</MapView>
