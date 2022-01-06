@@ -1,11 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Platform, Keyboard, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Platform, Keyboard, Dimensions, ActivityIndicator } from 'react-native';
 import { getData, setQuery, setData, setHide } from '~redux/modules/google';
 import { resetQuery, fillQueryData } from '~redux/modules/savedData';
 import { connect } from 'react-redux';
 import Autocomplete from 'react-native-autocomplete-input';
 import MapView, { Marker } from 'react-native-maps';
-import { Button } from 'react-native-paper';
+import { Button, IconButton } from 'react-native-paper';
 import Hide from 'react-native-hide-with-keyboard';
 import _ from 'lodash';
 
@@ -23,8 +23,29 @@ class ViewPage extends React.Component {
 		this.props.getData(text)
 	}
 
+	endOfInput = () => {
+		if (this.props.query === '') {
+			return null;
+		}
+
+		if (this.props.isLoading === true) {
+			return (
+				<View style={{ position: 'absolute', right: 0, padding: 10 }}>
+					<ActivityIndicator color={'black'}/>
+				</View>
+			)
+		}
+
+		return (
+			<View style={{ position: 'absolute', right: 0, top: -2 }}>
+				<IconButton icon="close" onPress={() => { this.props.setQuery(''); this.props.setHide(true);}}/>
+			</View>
+		)
+	}
+
 	autoComp = () => {
 		return (
+			<View>
 			<Autocomplete
 				data={this.props.data}
 				value={this.props.query}
@@ -33,7 +54,8 @@ class ViewPage extends React.Component {
 					this.onChangeTextDelayed(text)
 					this.props.setQuery(text)
 				}}
-				placeholder='Enter the name of the place that you want to search'
+				inputContainerStyle={{ paddingRight: 50 }}
+				placeholder='Enter the name of the place to search'
 				flatListProps={{
 					keyExtractor: (_, idx) => idx,
 					renderItem: ({ item, index }) => {
@@ -67,6 +89,8 @@ class ViewPage extends React.Component {
 					keyboardShouldPersistTaps:"handled"
 				}}
 			/>
+			{this.endOfInput()}
+			</View>
 		)
 	}
 
@@ -134,7 +158,7 @@ class ViewPage extends React.Component {
 }
 
 const mapStateToProps = ({ google, savedData }) => {
-	let { data, query, hideResults, selectedData } = google;
+	let { data, query, hideResults, selectedData, isLoading } = google;
 	let { searchQuery } = savedData;
 
 	return {
@@ -142,7 +166,8 @@ const mapStateToProps = ({ google, savedData }) => {
 		query,
 		hideResults,
 		searchQuery,
-		selectedData
+		selectedData,
+		isLoading
 	};
 };
 
