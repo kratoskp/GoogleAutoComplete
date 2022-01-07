@@ -136,8 +136,8 @@ class ViewPage extends React.Component {
 				{!_.isEmpty(selectedData) ?
 					<Hide style={{ flex: 1, justifyContent: 'center' }}>
 						<View style={{ paddingBottom: 16, paddingHorizontal: 16, alignItems: 'center' }}>
-							<Text>{selectedData.placeName} {selectedData.countryCode} {selectedData.postalCode}</Text>
-							<Text>{formatcoords(selectedData.lat,selectedData.lng).format('f')}</Text>
+							<Text style={{ fontSize: 20, fontWeight: 'bold' }}>{selectedData.placeName} {selectedData.countryCode} {selectedData.postalCode}</Text>
+							<Text style={{ fontSize: 20, fontWeight: 'bold' }}>{formatcoords(selectedData.lat,selectedData.lng).format('f')}</Text>
 						</View>
 						<MapView
 						style={{ height: Dimensions.get('screen').height / 2, width: Dimensions.get('screen').width }}
