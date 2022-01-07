@@ -1,12 +1,14 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Platform, Keyboard, Dimensions, ActivityIndicator } from 'react-native';
-import { getData, setQuery, setData, setHide } from '~redux/modules/google';
+import { getData, setQuery, setData, setHide, setQueryHide } from '~redux/modules/google';
 import { resetQuery, fillQueryData } from '~redux/modules/savedData';
 import { connect } from 'react-redux';
 import Autocomplete from 'react-native-autocomplete-input';
+import LottieView from 'lottie-react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { Button, IconButton } from 'react-native-paper';
 import Hide from 'react-native-hide-with-keyboard';
+import formatcoords  from 'formatcoords';
 import _ from 'lodash';
 
 class ViewPage extends React.Component {
@@ -54,7 +56,9 @@ class ViewPage extends React.Component {
 					this.onChangeTextDelayed(text)
 					this.props.setQuery(text)
 				}}
-				inputContainerStyle={{ paddingRight: 50 }}
+				onBlur={() => this.props.setQueryHide(true)}
+				onFocus={() => this.props.setQueryHide(false)}
+				inputContainerStyle={{ paddingRight: 50, borderRadius: 15, paddingLeft: 16 }}
 				placeholder='Enter the name of the place to search'
 				flatListProps={{
 					keyExtractor: (_, idx) => idx,
@@ -66,6 +70,7 @@ class ViewPage extends React.Component {
 									this.props.setQuery(item.placeName)
 									this.props.setData(item);
 									this.props.setHide(true);
+									this.props.setQueryHide(true);
 									Keyboard.dismiss();
 									if (this.map) {
 										this.map.animateCamera({
@@ -105,11 +110,11 @@ class ViewPage extends React.Component {
 					{this.autoComp()}
 				</View>
 				}
-				{this.props.searchQuery.length > 0 &&
-					<View style={{ flexDirection: 'row', marginTop: 60, flexWrap: 'wrap', zIndex: 0 }}>
+				{(this.props.searchQuery.length > 0 && this.props.queryHide === false) &&
+					<View style={{ flexDirection: 'row', marginTop: Platform.OS === 'android' ? 60 : 0, flexWrap: 'wrap', zIndex: 0, paddingTop: 16 }}>
 						 {this.props.searchQuery.map((data, index) => {
 							return (
-								<Button mode="contained" key={index} compact style={{ marginTop: 16, marginLeft: 16 }} onPress={() => {
+								<Button mode="contained" key={index} compact style={{ marginTop: 16, marginLeft: 16, backgroundColor: '#24a0ed' }} onPress={() => {
 									this.props.getData(data);
 									this.props.setQuery(data);
 									}
@@ -118,16 +123,22 @@ class ViewPage extends React.Component {
 								</Button>
 							);
 						})}
-						<Button mode="contained" icon="close" compact onPress={() => {this.props.resetQuery(); this.props.setQuery(''); }} style={{ marginTop: 16, marginLeft: 16 }}>
-							Clear search history
+						<Button 
+							mode="contained"
+							compact
+							onPress={() => {this.props.resetQuery(); this.props.setQuery(''); }}
+							style={{ marginTop: 16, marginLeft: 16, backgroundColor: 'red', borderRadius: 50 }}
+						>
+							Clear
 						</Button>
 					</View>
 				}
-				{!_.isEmpty(selectedData) &&
+				{!_.isEmpty(selectedData) ?
 					<Hide style={{ flex: 1, justifyContent: 'center' }}>
-						<Text>Current shown location : {selectedData.placeName} {selectedData.countryCode} {selectedData.postalCode}</Text>
-						<Text>Latitude : {selectedData.lat}</Text>
-						<Text>Longitude: {selectedData.lng}</Text>
+						<View style={{ paddingBottom: 16, paddingHorizontal: 16, alignItems: 'center' }}>
+							<Text>{selectedData.placeName} {selectedData.countryCode} {selectedData.postalCode}</Text>
+							<Text>{formatcoords(selectedData.lat,selectedData.lng).format('f')}</Text>
+						</View>
 						<MapView
 						style={{ height: Dimensions.get('screen').height / 2, width: Dimensions.get('screen').width }}
 						initialRegion={{
@@ -135,6 +146,7 @@ class ViewPage extends React.Component {
 							longitude: selectedData.lng,
 							latitudeDelta: 1,
 							longitudeDelta: 1,
+				
 						}}
 						ref={ref => { this.map = ref }}
 						onMapLoaded={() => this.map.animateCamera({
@@ -151,6 +163,23 @@ class ViewPage extends React.Component {
 							<Marker coordinate={{ latitude: selectedData.lat, longitude: selectedData.lng }} />
 						</MapView>
 					</Hide>
+					:
+					<LottieView
+						ref={animation => {
+							this.animation = animation;
+						}}
+						autoPlay
+						loop
+						style={{
+							width: 400,
+							height: 400,
+							backgroundColor: '#fff',
+							marginTop: Platform.OS === 'android' && 60
+						}}
+						source={require('../../assets/map-pin-location.json')}
+						// OR find more Lottie files @ https://lottiefiles.com/featured
+						// Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+					/>
 				}
 			</View>
 		);
@@ -158,7 +187,7 @@ class ViewPage extends React.Component {
 }
 
 const mapStateToProps = ({ google, savedData }) => {
-	let { data, query, hideResults, selectedData, isLoading } = google;
+	let { data, query, hideResults, selectedData, isLoading, queryHide } = google;
 	let { searchQuery } = savedData;
 
 	return {
@@ -167,7 +196,8 @@ const mapStateToProps = ({ google, savedData }) => {
 		hideResults,
 		searchQuery,
 		selectedData,
-		isLoading
+		isLoading,
+		queryHide
 	};
 };
 
@@ -177,7 +207,8 @@ const mapDispatchToProps = {
 	setData,
 	resetQuery,
 	fillQueryData,
-	setHide
+	setHide,
+	setQueryHide
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ViewPage);

@@ -5,13 +5,15 @@ const SETQUERY = 'google/SETQUERY';
 const SETDATA = 'google/SETDATA';
 const SETHIDE = 'google/SETHIDE';
 const SETLOADING = 'google/SETLOADING';
+const SETQUERYHIDE = 'google/SETQUERYHIDE';
 
 const initialState = {
 	data: [],
 	query: '',
 	selectedData: {},
 	hideResults: false,
-	isLoading: false
+	isLoading: false,
+	queryHide: true
 };
 
 // Reducer
@@ -44,6 +46,13 @@ export default function reducer(state = initialState, action = {}) {
 		return {
 			...state,
 			hideResults
+		};
+
+	case SETQUERYHIDE:
+		let { queryHide } = action;
+		return {
+			...state,
+			queryHide
 		};
 	
 	case SETLOADING:
@@ -91,6 +100,13 @@ export const setLoading = (bool) => {
 	return {
 		type: SETLOADING,
 		isLoading: bool
+	};
+};
+
+export const setQueryHide = (bool) => {
+	return {
+		type: SETQUERYHIDE,
+		queryHide: bool
 	};
 };
 
